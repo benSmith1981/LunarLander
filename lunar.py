@@ -150,5 +150,5 @@ def run_trained_model():
     env.close()
 
 if __name__ == '__main__':
-    main()
+    # main()
     run_trained_model()
