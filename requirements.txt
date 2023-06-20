@@ -1,0 +1,5 @@
+gym
+matplotlib
+tensorflow
+numpy
+box2d-py
