@@ -3,3 +3,4 @@ matplotlib
 tensorflow
 numpy
 box2d-py
+gym[box2d]
