@@ -51,7 +51,7 @@ def main():
     
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    n_epochs = 200
+    n_epochs = 800
     env.reset()
 
     # Create a `Sequential` model and add a Dense layer as the first layer.
@@ -60,6 +60,9 @@ def main():
 
     # Hyper-parameters
     epsilon = 0.3  # epsilon greedy
+    epsilon_min = 0.01
+    epsilon_decay = 0.995
+    gamma = 0.6
 
     # start the training
     episode_rewards = []
@@ -86,9 +89,14 @@ def main():
 
             state, reward, done, truncated, info = env.step(action)
             y_pred[action] = reward
+            # y_pred[action] = reward if done else reward + gamma * np.max(agent.model.predict(state)[0])
+
             replay_buffer.append(state)
             rewards.append(y_pred)
             episode_reward += reward
+            if epsilon > epsilon_min:
+                epsilon *= epsilon_decay
+
             if done or truncated:
                 episode_rewards.append(episode_reward)
                 if len(replay_buffer) > replay_buffer_len:
@@ -101,13 +109,43 @@ def main():
 
         im = ax.plot(range(len(episode_rewards)), episode_rewards)
         fig.canvas.flush_events()
-        print(f"saving model after {episode}")
-        # Save the model
+        # Save the modelx
         agent.model.save(path_to_my_model)
 
     plt.ioff()
     plt.show()
 
     env.close()
+
+
+# Create a function to preprocess the state
+def preprocess_state(state):
+    return np.expand_dims(state, axis=0)
+
+def run_trained_model():
+    env = gym.make("CartPole-v1",
+                render_mode='human')
+
+    # Load the trained model
+    loaded_model = tf.keras.models.load_model(path_to_my_model)
+
+    state, _ = env.reset()
+
+    done = False
+    while not done:
+        env.render()
+        # Preprocess the state
+        processed_state = preprocess_state(state)
+
+        # Use the model to predict the action
+        action = np.argmax(loaded_model.predict(processed_state)[0])
+
+        state, reward, done, truncated, info = env.step(action)
+
+    env.close()
+
 if __name__ == '__main__':
     main()
+    # run_trained_model()
+
+
