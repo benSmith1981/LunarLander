@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 import os
 gym.logger.set_level(40)  # errors only
-path_to_my_model = 'lunar-model.h5'
+path_to_my_model = 'lunar-model2.h5'
 
 class Agent:
     """
@@ -55,7 +55,8 @@ def main():
                    gravity=-10.0,
                    enable_wind=False,
                    wind_power=15.0,
-                   turbulence_power=1.5
+                   turbulence_power=1.5,
+                   render_mode="human"
                    )
     n_epochs = 800
     env.reset()
@@ -92,8 +93,16 @@ def main():
 
             state, reward, done, truncated, info = env.step(action)
             y_pred[action] = reward
+            print(f"action {action}")
+            print(f"state {state}")
+
             replay_buffer.append(state)
             rewards.append(y_pred)
+            print(f"y_pred {y_pred}")
+            print(f"rewards {rewards}")
+            print(f"replay_buffer {replay_buffer}")
+            print(f"replay_buffer_len {replay_buffer_len}")
+
             episode_reward += reward
             if done or truncated:
                 episode_rewards.append(episode_reward)
@@ -150,5 +159,5 @@ def run_trained_model():
     env.close()
 
 if __name__ == '__main__':
-    # main()
+    main()
     run_trained_model()
